@@ -18,6 +18,9 @@ export const demo_1 = async function demo_1(coll) {
                 "createdAt": {
                     "type": "date"
                 },
+                "createdBy": {
+                    "type": "objectId"
+                },
                 "currentStatus": {
                     "fields": {
                         "value": {
@@ -51,7 +54,7 @@ export const demo_1 = async function demo_1(coll) {
     }
 }
 
-export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, valueInPenceStart, valueInPenceEnd, sortField, sortOrder) {
+export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, valueInPenceStart, valueInPenceEnd, sortField, sortOrder, limit) {
     let musts = [];
     if (nino) {
         musts.push({
@@ -98,13 +101,31 @@ export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateE
         }
     ];
     if (sortField && sortOrder) {
+        searchPipeline[0]['$search']['sort'] = {};
+        searchPipeline[0]['$search']['sort'][sortField] = sortOrder;
+    }
+    if (limit) {
         searchPipeline.push({
-            '$sort': {
-                [sortField]: sortOrder
-            }
+            '$limit': limit
         });
     }
     const results = await coll.aggregate(searchPipeline).toArray();
     console.log(chalk.green(`✅ Found ${results.length} matching documents:`));
     console.log(results);
+
+    const searchMetaPipeline = [
+        {
+            '$searchMeta': {
+                'index': 'demo_index',
+                'count': {
+                    'type': 'total'
+                },
+                'compound': {
+                    'must': musts
+                }
+            }
+        }
+    ];
+    const countResults = await coll.aggregate(searchMetaPipeline).toArray();
+    console.log(chalk.green(`✅ Total count of matching documents: ${countResults.length > 0 ? countResults[0].count.total : 0}`));
 }

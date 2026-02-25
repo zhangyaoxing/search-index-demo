@@ -130,7 +130,13 @@ async function run() {
                 ],
             });
             let sortOrder = sortOrderResp.value || 1;
-            await demo_2(coll, nino, status, dateStart, dateEnd, valueInPenceStart, valueInPenceEnd, sortField, sortOrder);
+            let limitResp = await prompts({
+                type: 'number',
+                name: 'value',
+                message: 'Enter the number of results to return (default 10):',
+            });
+            let limit = limitResp.value || 10;
+            await demo_2(coll, nino, status, dateStart, dateEnd, valueInPenceStart, valueInPenceEnd, sortField, sortOrder, limit);
         } else {
             console.log(chalk.red('Invalid demo mode selected. Please choose either 1 or 2.'));
         }
