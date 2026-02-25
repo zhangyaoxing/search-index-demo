@@ -51,7 +51,7 @@ export const demo_1 = async function demo_1(coll) {
     }
 }
 
-export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd, sortField, sortOrder) {
+export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, valueInPenceStart, valueInPenceEnd, sortField, sortOrder) {
     let musts = [];
     if (nino) {
         musts.push({
@@ -78,12 +78,12 @@ export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateE
             }
         });
     }
-    if (priceInPenceStart >= 0 && priceInPenceEnd >= 0) {
+    if (valueInPenceStart >= 0 && valueInPenceEnd >= 0) {
         musts.push({
             'range': {
                 'path': 'valueInPence',
-                'gte': priceInPenceStart,
-                'lte': priceInPenceEnd
+                'gte': valueInPenceStart,
+                'lte': valueInPenceEnd
             }
         });
     }

@@ -100,18 +100,18 @@ async function run() {
             let dateEnd = dateEndResp.value ? new Date(dateEndResp.value) : new Date("2026-02-26");
 
             // valueInPence range input
-            let priceInPenceStartResp = await prompts({
+            let valueInPenceStartResp = await prompts({
                 type: 'number',
                 name: 'value',
                 message: 'Enter the valueInPence start to search for (default 0):',
             });
-            let priceInPenceStart = priceInPenceStartResp.value || 0;
-            let priceInPenceEndResp = await prompts({
+            let valueInPenceStart = valueInPenceStartResp.value || 0;
+            let valueInPenceEndResp = await prompts({
                 type: 'number',
                 name: 'value',
                 message: 'Enter the valueInPence end to search for (default 100):',
             });
-            let priceInPenceEnd = priceInPenceEndResp.value || 100;
+            let valueInPenceEnd = valueInPenceEndResp.value || 100;
 
             // sorting
             let sortFieldResp = await prompts({
@@ -130,7 +130,7 @@ async function run() {
                 ],
             });
             let sortOrder = sortOrderResp.value || 1;
-            await demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd, sortField, sortOrder);
+            await demo_2(coll, nino, status, dateStart, dateEnd, valueInPenceStart, valueInPenceEnd, sortField, sortOrder);
         } else {
             console.log(chalk.red('Invalid demo mode selected. Please choose either 1 or 2.'));
         }
