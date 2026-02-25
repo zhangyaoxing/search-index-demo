@@ -1,0 +1,94 @@
+import chalk from 'chalk';
+
+export const demo_1 = async function demo_1(coll) {
+    const indexExists = await coll.listSearchIndexes().toArray();
+    const def = {
+        "mappings": {
+            "dynamic": false,
+            "fields": {
+                "createdAt": {
+                    "type": "date"
+                },
+                "currentStatus": {
+                    "fields": {
+                        "value": {
+                            "analyzer": "lucene.keyword",
+                            "searchAnalyzer": "lucene.keyword",
+                            "type": "string"
+                        }
+                    },
+                    "type": "document"
+                },
+                "nino": {
+                    "analyzer": "lucene.keyword",
+                    "searchAnalyzer": "lucene.keyword",
+                    "type": "string"
+                },
+                "valueInPence": {
+                    "type": "number"
+                }
+            }
+        }
+    };
+    if (indexExists.some(idx => idx.name === 'demo_index')) {
+        console.log(chalk.yellow('⚠️  Index "demo_index" already exists. Updating the index definition...'));
+        await coll.updateSearchIndex('demo_index', def);
+    } else {
+        console.log(chalk.blue('🔧 Creating a new Atlas Search Index named "demo_index"...'));
+        await coll.createSearchIndex({
+            name: 'demo_index',
+            definition: def
+        });
+    }
+}
+
+export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd) {
+    let musts = [];
+    if (nino) {
+        musts.push({
+            'text': {
+                'query': nino,
+                'path': 'nino'
+            }
+        });
+    }
+    if (status) {
+        musts.push({
+            'text': {
+                'query': status,
+                'path': 'currentStatus.value'
+            }
+        });
+    }
+    if (dateStart && dateEnd) {
+        musts.push({
+            'range': {
+                'path': 'createdAt',
+                'gte': dateStart,
+                'lte': dateEnd
+            }
+        });
+    }
+    if (priceInPenceStart >= 0 && priceInPenceEnd >= 0) {
+        musts.push({
+            'range': {
+                'path': 'valueInPence',
+                'gte': priceInPenceStart,
+                'lte': priceInPenceEnd
+            }
+        });
+    }
+    const searchPipeline = [
+        {
+            '$search': {
+                'index': 'demo_index',
+                'compound': {
+                    'must': musts
+                }
+            }
+        }
+    ];
+    const results = await coll.aggregate(searchPipeline).toArray();
+    console.log(chalk.green(`✅ Found ${results.length} matching documents:`));
+    console.log(results);
+}
