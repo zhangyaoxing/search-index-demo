@@ -51,7 +51,7 @@ export const demo_1 = async function demo_1(coll) {
     }
 }
 
-export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd) {
+export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd, sortField, sortOrder) {
     let musts = [];
     if (nino) {
         musts.push({
@@ -97,6 +97,13 @@ export const demo_2 = async function demo_2(coll, nino, status, dateStart, dateE
             }
         }
     ];
+    if (sortField && sortOrder) {
+        searchPipeline.push({
+            '$sort': {
+                [sortField]: sortOrder
+            }
+        });
+    }
     const results = await coll.aggregate(searchPipeline).toArray();
     console.log(chalk.green(`✅ Found ${results.length} matching documents:`));
     console.log(results);

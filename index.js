@@ -112,7 +112,25 @@ async function run() {
                 message: 'Enter the valueInPence end to search for (default 100):',
             });
             let priceInPenceEnd = priceInPenceEndResp.value || 100;
-            await demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd);
+
+            // sorting
+            let sortFieldResp = await prompts({
+                type: 'text',
+                name: 'value',
+                message: 'Enter the field to sort by (default createdAt):',
+            });
+            let sortField = sortFieldResp.value || 'createdAt';
+            let sortOrderResp = await prompts({
+                type: 'select',
+                name: 'value',
+                message: 'Select the sort order:',
+                choices: [
+                    { title: 'Ascending', value: 1 },
+                    { title: 'Descending', value: -1 }
+                ],
+            });
+            let sortOrder = sortOrderResp.value || 1;
+            await demo_2(coll, nino, status, dateStart, dateEnd, priceInPenceStart, priceInPenceEnd, sortField, sortOrder);
         } else {
             console.log(chalk.red('Invalid demo mode selected. Please choose either 1 or 2.'));
         }
